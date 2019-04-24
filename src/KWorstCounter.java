@@ -1,38 +1,40 @@
 import java.util.*;
 
-public class KWorstCounter<T> implements KWorst<T> {
+public class KWorstCounter<T extends Comparable<? super T>> implements KWorst<T> {
 
-    private PriorityQueue<T> pq = new PriorityQueue<T>(Collections.reverseOrder());
     private int k;
+    private PriorityQueue<T> pq;
 
-    public KWorstCounter(int k){
-          this.k = k;
+    public KWorstCounter(int k) {
+        this.k = k;
+        pq = new PriorityQueue<T>(Collections.reverseOrder());
     }
 
-    public void count(T x){
-        pq.add(x);
+    public void count(T x) {
+        if (pq.peek() != null) {
+            if (pq.size() < k) {
+                pq.add(x);
+            } else {
+                T greatest = pq.peek();
+                if (x.compareTo(greatest) <= 0) {
+                    pq.add(x);
+                    pq.remove();
+                }
+            }
+        } else {
+            pq.add(x);
+        }
     }
 
     public List<T> kworst() {
-        ArrayList<T> kWorst = new ArrayList<T>();
-
-        for (int i = 0; i < k; i++) {
-            T next = pq.poll();
-            if (next == null) {
-                System.out.println("queue is empty at " + i);
-                break;
-            }
-            else{
-                kWorst.add(next);
-            }
+        ArrayList<T> kWorst = new ArrayList<>();
+        for (T x : pq){
+            kWorst.add(0, x);
         }
-
-        for (int i = 0; i < kWorst.size(); i++) {
-            pq.add(kWorst.get(i));
-        }
-
+        Collections.sort(kWorst);
         return kWorst;
     }
+
 
     public void printQ() {
         PriorityQueue<T> pqTemp = new PriorityQueue<T>(pq);
